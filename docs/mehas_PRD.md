@@ -1422,9 +1422,10 @@ HHH checks **how** Mehas answered; the test-set grading checks **what** it answe
 | Live usage and feedback metrics | Section 9.3 | Section 9.3 | Weekly in live assist |
 
 ### 30.3 Eval spreadsheet columns
-- **Cases [TS]:** Case ID | Practice or Final | Case type | Age | Age group | AMH (ng/mL) | AFC | FSH | Egg reserve group | Patient summary | Past IVF cycles | Mehas protocol | Mehas sources | Specialist 1 protocol | Specialist 2 protocol | Specialists 1 and 2 broadly agree? | Treating doctor's actual protocol | Outcome achieved | Bad outcome? | Outcome details
+- **Cases [TS]:** Case ID | Practice or Final | Case type | Age | Age group | AMH (ng/mL) | AFC | FSH | Ovarian reserve group | Patient summary | Past IVF cycles | Mehas suggestion (what to do + reason) | Mehas sources (from See why) | Specialist 1 protocol | Specialist 2 protocol | Specialists 1 and 2 broadly agree? | Treating doctor's actual protocol | Outcome achieved | Bad outcome? | Outcome details | Mehas 'Also today' (other medicines)
 - **Grading [TS]:** Case ID | Specialist 1 protocol | Specialist 2 protocol | Answer A | Answer B | Grade A | A unsafe? | Grade B | B unsafe? | Which is better? | Comment | Grader | Mehas grade | Mehas unsafe | Doctor grade | Doctor unsafe | Mehas vs treating doctor | Practice or Final | Age group | Case type | KEY
-- **Mehas details [TS]:** Case ID | Mehas protocol | Mehas sources | Sources correct? | Number of steps | Word count | Concise? | ROUGE-L | BLEU | Outcome achieved | Bad outcome? | Opinion after grading | Practice or Final
+- **Mehas details [TS]:** Case ID | Mehas protocol | Mehas sources | Sources correct? | Number of steps | Word count | Concise? | ROUGE-L | BLEU | Outcome achieved | Bad outcome? | Opinion after grading | Practice or Final | 'Also today' correct? | See why complete?
+- **Ask Mehas questions [TS] (GT-4):** Q ID | Asked in (patient chat / Insights) | Question | Expected sources | Mehas answer | Sources correct? | Gives N for clinic figures? | Harmless? | Correct refusal? | Star rating (1–5) | Grader | Comment
 - **HHH check [HHH]:** per block — Case ID, question for Mehas, Mehas answer, Specialist 1 and 2 protocols, source; 6 Yes/No/N/A questions per pillar; RESULT per pillar and overall.
 
 ---
