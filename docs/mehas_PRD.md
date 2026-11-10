@@ -620,7 +620,7 @@ The gradable per-feature version of these presentation rules is Section 18.3.
 
 ### 16.1 Never do
 - Never write or place an order or prescription; a doctor decides every order.
-- Never save anything read by AI without a person confirming it; never guess a field it is unsure of.
+- Never save anything read by AI without a person confirming it — except a lab report whose every value is read clearly and whose patient matches (R-02); never guess a field it is unsure of.
 - Never suggest outside guideline safety limits; clinic patterns may shape a suggestion only within them.
 - Never suggest drugs, protocols or patient groups the clinic's rules exclude.
 - Never recommend untested or not-yet-approved options (flagged insight only).
@@ -801,7 +801,7 @@ Each rule is written so it can be checked: **[A]** = automatic check (a script c
 - **Pass bar:** counts match the audit 100% `(proposed)`; day marked complete every clinic day `(proposed)`.
 
 #### 18.3.3 Data-ingestion features (output = correct data in Mehas)
-For these features, success means **the right value is stored against the right patient after a person confirms it**. What the person sees while confirming is also part of the output.
+For these features, success means **the right value is stored against the right patient** — after a person confirms it, or automatically for a lab report read clearly and matched (D1). What the person sees while confirming is also part of the output.
 
 | Feature | What the person sees while confirming | Output that counts as success | If it can't read | Graded by | Pass bar |
 |---|---|---|---|---|---|
@@ -992,7 +992,7 @@ Raising a ceiling mid-month needs Meha's explicit approval and is logged.
 #### 22.1.1 Principles
 1. **Only two things are instructions:** Mehas's own version-controlled system prompts and output schemas, and clinic configuration approved by the champion (rules, thresholds, formulary, evidence set). **Everything the model reads at runtime is data**, however it is worded.
 2. **Who sent it ≠ whether it is correct.** A signed-in user is trusted for identity and authority, not for the correctness of the content they enter; every value is still range-checked and confirmed.
-3. **Model output is untrusted** until it passes the validation chain in 22.1.6. It is never executed, never used to call a tool, and never written to a record without a person confirming it.
+3. **Model output is untrusted** until it passes the validation chain in 22.1.6. It is never executed, never used to call a tool, and never written to a record without a person confirming it — the one exception is a lab report read clearly and matched (R-02), which is saved after passing range and unit checks.
 4. **The model has no tools with side effects.** It cannot write to the database, send messages, change rules, browse the web or call another system. Every write is done by application code after human confirmation.
 5. **Safety does not depend on the model obeying.** Tenant isolation is enforced by the database (row-level security), role permissions by the server (R-27), dose and formulary limits by the rules engine, PII by an outbound scanner — none by prompt wording.
 
@@ -1206,7 +1206,7 @@ Each correction of a new abbreviation is proposed for the abbreviations list giv
 - Lab values checked for units and plausible ranges.
 - Every suggestion (every version) and prescription checked against clinic rules and guideline limits.
 - Automated check that each cited passage supports the claim; "What's new" summary checked against its source.
-- Nothing pre-filled by AI is saved until a person confirms it.
+- Nothing pre-filled by AI is saved until a person confirms it, except lab reports read clearly and matched (R-02).
 - Limited-data and descriptive-not-causal labels applied automatically.
 - Full validation chain and order: Section 22.1.6.
 
@@ -1250,7 +1250,7 @@ Each correction of a new abbreviation is proposed for the abbreviations list giv
 | Scheduled jobs | Re-run automatically once; if still incomplete at +30 min, alert on-call (E-32) |
 
 ### 28.4 Error catalogue
-Severity (proposed, for Section 37.2): **Sev-1** patient-safety or data-protection risk — Meha alerted immediately, affected feature auto-paused (Section 34); **Sev-2** a core workflow unavailable — Meha alerted within 15 min, clinic admin told; **Sev-3** single request or non-core feature — logged, daily review.
+Severity (proposed, for Section 37.2): **Sev-1** patient-safety or data-protection risk — Meha alerted immediately, affected feature auto-paused (Section 34); **Sev-2** a core workflow unavailable — Meha alerted within 15 min, clinic operations coordinator told; **Sev-3** single request or non-core feature — logged, daily review.
 
 **A. AI model provider**
 | Code | Failure | Class | Handling after retries | User sees (role) | Notified / Sev |
@@ -1296,7 +1296,7 @@ Severity (proposed, for Section 37.2): **Sev-1** patient-safety or data-protecti
 | E-26 | Photo too blurry / page not detected | T | Ask to retake | MSG-RETAKE | — |
 | E-27 | "What's new" source fetch fails / batch late | R | Next scheduled run; after 3 consecutive failed days alert | Nothing to doctors; champion sees "sources not updated since …" | Champion, Sev-3 |
 | E-28 | "What's new" summary fails source check | T | Not published; champion queue [existing] | — | Champion |
-| E-36 | WhatsApp delivery fails | R | 3 retries over 15 min; item stays on the coordinator's Due today list; daily report shows "WhatsApp not delivered" | In-app alert; admin sees delivery failure | Clinic operations coordinator; Sev-2 if missed-step alert undelivered for > 1 h |
+| E-36 | WhatsApp delivery fails | R | 3 retries over 15 min; item stays on the coordinator's Due today list; daily report shows "WhatsApp not delivered" | In-app alert; coordinator sees delivery failure | Clinic operations coordinator; Sev-2 if missed-step alert undelivered for > 1 h |
 | E-37 | Appointment list unavailable | T | Front-desk check-in [existing] | Check-in screen | Coordinator |
 | E-38 | Lab inbox silent (no reports for `SET` working hours) | T | Coordinator prompted to check delivery; manual upload [existing] | Coordinator banner | Coordinator, Sev-3 |
 | E-39 | Print fails | R | Case sheet offered as PDF download | MSG-PRINT | — |
@@ -1447,17 +1447,17 @@ HHH checks **how** Mehas answered; the test-set grading checks **what** it answe
 Every AI output (with its version), review, feedback, prescription, lab entry, conversation, rule change and user/role change — with who and when; for every entry, who entered it and which paper note it came from; usage and print logs; entry logs (time per visit); inbox log and nurse's Lab reports screen; "What's new" source log; chat logs and ratings; rule version used by each suggestion; role-check refusals (E-34). Per AI request: task, tokens in/out, cost, latency, retries, end state (delivered / "can't answer" / failed + error code), model ID, prompt version, evidence-set version, rule version. Per clinic: daily and monthly spend against ceilings (Section 21.1).
 
 ### 32.2 Dashboards
-- Clinic outcomes dashboard (R-16) for the owner / medical director.
-- Daily completeness report and daily injection summary screen (R-09, R-26).
+- Insights (R-16) for doctors and the owner / medical director.
+- Due today and Daily completeness for the clinic operations coordinator (R-09, R-26).
 - Test set Summary tab and HHH Summary tab [TS, HHH].
 - Internal ops/cost dashboards: `Pending` (must show the Section 32.1 per-request and per-clinic data).
 
 ### 32.3 Alerts
 | Condition | Threshold | Who is alerted | Action |
 |---|---|---|---|
-| Day's entries incomplete | At the clinic's set time (e.g. 8 pm) | Senior doctor in charge + junior doctors | Complete entries; re-flagged next morning |
+| Day's entries incomplete | At the clinic's set time (e.g. 8 pm) | Clinic operations coordinator (Daily completeness) | Calls the person responsible; open gaps carry to the next day |
 | Entries still missing | Weekly | Owner / medical director | Weekly summary |
-| Missed step | At the clinic's set time | Junior or on-call doctor | Call patient, record answer |
+| Missed step | At the clinic's set time | Clinic operations coordinator (Due today); on-call doctor for a missed trigger | Call patient or staff; mark the day reviewed |
 | Guideline in evidence set updated | On update | Champion | Update evidence set |
 | Safety miss | Any | Champion | Rules review |
 | AI spend | 50%, 80%, 100% of a ceiling (Section 21.1.5) | Meha | Review; degrade by tier |
@@ -1534,7 +1534,7 @@ Clinician decision support that shows its sources, with a doctor (senior, or jun
 | Question | Answer |
 |---|---|
 | Efficacy and limitations | Efficacy measured on GT-1 against two specialists and in live use (Section 9.3). Limitations: not a prediction engine; clinic data is descriptive, not causal; no AI image interpretation; no adjusted comparisons until Phase 2; live-birth outcomes arrive ~9 months after the pilot window. The pilot does not change who is clinically responsible. |
-| Human oversight and control | Doctor in the loop for every suggestion and order, and records her own plan whenever she differs; human confirmation of every AI-read field; champion approves rules, thresholds, evidence set and sources; clinic admin controls who has which role; deterministic safety net independent of the AI. |
+| Human oversight and control | Doctor in the loop for every suggestion and order, and records her own plan whenever she differs; human confirmation of every AI-read field; champion approves rules, thresholds, evidence set and sources; the clinic operations coordinator controls who has which role; a senior doctor approves rule, price and bill changes; deterministic safety net independent of the AI. |
 
 ### 36.2 Transparency
 | Question | Answer |
@@ -1615,7 +1615,7 @@ Likelihood and impact ratings: `Pending`.
 | RISK-12 | Digitizing full history exceeds one operator's capacity | — | — | Second operator, or continue digitizing through the pilot |
 | RISK-13 | Daily entry workload on junior doctors | — | — | Pre-filled entries, batching, photo or typing; agree entry time and cover with the clinic |
 | RISK-14 | (Only if R8 returns) Doctors use feedback revisions to steer Mehas toward habit rather than evidence, weakening the "showed me something new" value | — | — | Version 1 always kept and viewable; revisions stay within guideline limits; champion reviews revision themes weekly; first-version and post-revision thumbs-up rates tracked separately (9.3) |
-| RISK-15 | Clinic operations coordinator doesn't keep users and roles current (staff leave, juniors promoted) | — | — | Role list agreed in Stage 0; weekly owner summary lists active users and roles `(proposed)`; repeated refusals alert the admin |
+| RISK-15 | Clinic operations coordinator doesn't keep users and roles current (staff leave, juniors promoted) | — | — | Role list agreed in Stage 0; weekly owner summary lists active users and roles `(proposed)`; repeated refusals alert the coordinator |
 
 ---
 
